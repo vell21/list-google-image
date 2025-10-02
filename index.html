@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Google Image</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #357ae8;
+        }
+        #results {
+            margin-top: 30px;
+        }
+        .item {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-info {
+            flex: 1;
+        }
+        .item-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .item-price {
+            color: #666;
+            font-size: 14px;
+        }
+        .item-link {
+            margin-left: 20px;
+        }
+        .item-link a {
+            background-color: #4285f4;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .item-link a:hover {
+            background-color: #357ae8;
+        }
+        .instructions {
+            background-color: #e8f4f8;
+            border-left: 4px solid #4285f4;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .instructions p {
+            margin: 5px 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>List Google Image Search</h1>
+    
+    <div class="container">
+        <div class="instructions">
+            <h3>Instructions</h3>
+            <p>Enter your list below with each item on a new line in the format:</p>
+            <p><strong>Item Name — Price</strong></p>
+            <p>Example: Nannostomus Cenepa — RM123</p>
+        </div>
+        
+        <textarea id="inputList" placeholder="Paste your list here, one item per line...
+Example:
+* Nannostomus Cenepa — RM123
+* Gastrodremus C123 — RM56"></textarea>
+        
+        <button onclick="processList()">Generate Google Image Links</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function processList() {
+            const input = document.getElementById('inputList').value;
+            const resultsDiv = document.getElementById('results');
+            
+            // Clear previous results
+            resultsDiv.innerHTML = '';
+            
+            if (!input.trim()) {
+                alert('Please enter a list!');
+                return;
+            }
+            
+            // Split by lines and process each
+            const lines = input.split('\n').filter(line => line.trim());
+            
+            lines.forEach(line => {
+                // Remove leading asterisk and spaces if present
+                let cleanLine = line.trim().replace(/^\*\s*/, '');
+                
+                // Split by " — " to separate name and price
+                const parts = cleanLine.split(/\s*—\s*/);
+                
+                if (parts.length >= 1 && parts[0].trim()) {
+                    const itemName = parts[0].trim();
+                    const price = parts.length > 1 ? parts[1].trim() : '';
+                    
+                    // Create Google Images search URL
+                    const searchQuery = encodeURIComponent(itemName);
+                    const googleImagesUrl = `https://www.google.com/search?tbm=isch&q=${searchQuery}`;
+                    
+                    // Create result item
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'item';
+                    
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'item-info';
+                    
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'item-name';
+                    nameDiv.textContent = itemName;
+                    
+                    const priceDiv = document.createElement('div');
+                    priceDiv.className = 'item-price';
+                    priceDiv.textContent = price || 'No price';
+                    
+                    infoDiv.appendChild(nameDiv);
+                    infoDiv.appendChild(priceDiv);
+                    
+                    const linkDiv = document.createElement('div');
+                    linkDiv.className = 'item-link';
+                    
+                    const link = document.createElement('a');
+                    link.href = googleImagesUrl;
+                    link.target = '_blank';
+                    link.textContent = 'Search Images';
+                    
+                    linkDiv.appendChild(link);
+                    
+                    itemDiv.appendChild(infoDiv);
+                    itemDiv.appendChild(linkDiv);
+                    
+                    resultsDiv.appendChild(itemDiv);
+                }
+            });
+        }
+        
+        // Load sample data on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const sampleData = `* Nannostomus Cenepa — RM123
+* Gastrodremus C123 — RM56
+* Corydoras Reticulatus — RM53
+* Moenkhausia Kogal Platinum — RM78
+* Hyphessobrycon Notidanos Yellow — RM75
+* Hyphessobrycon Puegottei Male — RM70
+* Moenkhausia Rubra Platinum — RM98
+* Hyphessobrycon Cyanotaenia Yellow Platinum — RM88
+* Parotocinclus HaroldoI — RM77
+* Hisonotus Vireo — RM65
+* Corydoras Pulwartzi — RM195
+* Pterophyllum San Felipe 3-5cm — RM91
+* Pterophyllum San Felipe 2-3cm — RM84
+* Pterophyllum Heikon 3-5cm — RM81
+* Pterophyllum Altum 2-3cm — RM98
+* BEC — RM1260
+* Corydoras Hastatus — RM29
+* Corydoras Froehlichi — RM210
+* Corydoras CW162 — RM350
+* Corydoras Knaacki — RM350
+* Corydoras C68 — RM244
+* Moenkhausia Bellasonmosa — RM144
+* Moenkhausia Empress — RM84
+* Hemmigramus Vinaceus — RM54
+* Otocinclus Flexilis — RM66
+* Hypancistrus L236 — RM830
+* Ancistrus L144 SR — RM250
+* Ancistrus L144 Green Dragon — RM350
+* Gymnogeophagus Lipokarenos — RM525
+* Geophagus Proximus — RM88`;
+            
+            document.getElementById('inputList').value = sampleData;
+        });
+    </script>
+</body>
+</html>
