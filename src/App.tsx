@@ -12,20 +12,34 @@ const App: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
-    // Load images for all items
+    // Load images for all items with better error handling
     const loadImages = async () => {
-      for (const item of items) {
-        if (!imageUrls[item.id] && !loadingImages[item.id]) {
-          setLoadingImages(prev => ({ ...prev, [item.id]: true }));
-          
-          try {
-            const imageUrl = await searchImage(item.name + ' fish aquatic');
-            setImageUrls(prev => ({ ...prev, [item.id]: imageUrl }));
-          } catch (error) {
-            console.error(`Error loading image for ${item.name}:`, error);
-          } finally {
-            setLoadingImages(prev => ({ ...prev, [item.id]: false }));
-          }
+      const itemsToLoad = items.filter(item => !imageUrls[item.id] && !loadingImages[item.id]);
+      
+      if (itemsToLoad.length === 0) return;
+
+      const loadPromises = itemsToLoad.map(async (item) => {
+        setLoadingImages(prev => ({ ...prev, [item.id]: true }));
+        
+        try {
+          const imageUrl = await searchImage(item.name);
+          setImageUrls(prev => ({ ...prev, [item.id]: imageUrl }));
+        } catch (error) {
+          console.error(`Error loading image for ${item.name}:`, error);
+          setImageUrls(prev => ({ ...prev, [item.id]: null }));
+        } finally {
+          setLoadingImages(prev => ({ ...prev, [item.id]: false }));
+        }
+      });
+
+      // Load images in batches to avoid overwhelming the browser
+      const batchSize = 5;
+      for (let i = 0; i < loadPromises.length; i += batchSize) {
+        const batch = loadPromises.slice(i, i + batchSize);
+        await Promise.allSettled(batch);
+        // Small delay between batches
+        if (i + batchSize < loadPromises.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
     };

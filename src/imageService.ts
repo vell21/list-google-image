@@ -4,23 +4,7 @@
 
 export const searchImage = async (query: string): Promise<string | null> => {
   try {
-    // For demo purposes, we'll use a fallback approach without API keys
-    // In production, uncomment the Unsplash API call below and add your API key
-    
-    /*
-    const response = await fetch(
-      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&client_id=${UNSPLASH_ACCESS_KEY}`
-    );
-    
-    if (response.ok) {
-      const data = await response.json();
-      if (data.results && data.results.length > 0) {
-        return data.results[0].urls.small;
-      }
-    }
-    */
-    
-    // Fallback: Generate a placeholder image with the fish/plant name
+    // For demo purposes, we'll use reliable placeholder services
     // This ensures the app works without API keys for demo purposes
     return generatePlaceholderImage(query);
     
@@ -31,10 +15,51 @@ export const searchImage = async (query: string): Promise<string | null> => {
 };
 
 const generatePlaceholderImage = (name: string): string => {
-  // Generate a placeholder image using a service like placeholder.com or via.placeholder.com
-  const encodedName = encodeURIComponent(name);
+  // Use multiple reliable placeholder services for better success rate
+  const services = [
+    generatePicsum(name),
+    generateDiceBear(name),
+    generatePlaceholderCom(name),
+    generateDummyImage(name)
+  ];
+  
+  // Return the first service (can be randomized if desired)
+  return services[Math.floor(Math.random() * services.length)];
+};
+
+const generatePicsum = (name: string): string => {
+  // Picsum Photos - reliable image service
+  const seed = getHashFromString(name);
+  return `https://picsum.photos/seed/${seed}/300/200`;
+};
+
+const generateDiceBear = (name: string): string => {
+  // DiceBear for consistent avatars - using fish theme
+  const encodedName = encodeURIComponent(name.toLowerCase().replace(/\s+/g, ''));
+  return `https://api.dicebear.com/7.x/shapes/svg?seed=${encodedName}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf&size=300`;
+};
+
+const generatePlaceholderCom = (name: string): string => {
+  // Placeholder.com as backup
+  const encodedName = encodeURIComponent(name.substring(0, 20)); // Limit length
   const backgroundColor = getColorFromString(name);
   return `https://via.placeholder.com/300x200/${backgroundColor}/ffffff?text=${encodedName}`;
+};
+
+const generateDummyImage = (name: string): string => {
+  // DummyImage.com as another backup
+  const backgroundColor = getColorFromString(name);
+  const textColor = getContrastColor(backgroundColor);
+  const encodedName = encodeURIComponent(name.substring(0, 15));
+  return `https://dummyimage.com/300x200/${backgroundColor}/${textColor}&text=${encodedName}`;
+};
+
+const getHashFromString = (str: string): string => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash).toString();
 };
 
 const getColorFromString = (str: string): string => {
@@ -44,6 +69,15 @@ const getColorFromString = (str: string): string => {
   }
   const color = Math.abs(hash).toString(16).substring(0, 6);
   return color.padEnd(6, '0');
+};
+
+const getContrastColor = (hexColor: string): string => {
+  // Simple contrast color calculation
+  const r = parseInt(hexColor.substring(0, 2), 16);
+  const g = parseInt(hexColor.substring(2, 4), 16);
+  const b = parseInt(hexColor.substring(4, 6), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness > 128 ? '000000' : 'ffffff';
 };
 
 // Alternative approach using DuckDuckGo (no API key required)
