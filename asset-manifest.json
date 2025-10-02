@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/list-google-image/static/css/main.0daca16e.css",
+    "main.js": "/list-google-image/static/js/main.11674da0.js",
+    "index.html": "/list-google-image/index.html",
+    "main.0daca16e.css.map": "/list-google-image/static/css/main.0daca16e.css.map",
+    "main.11674da0.js.map": "/list-google-image/static/js/main.11674da0.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0daca16e.css",
+    "static/js/main.11674da0.js"
+  ]
+}
